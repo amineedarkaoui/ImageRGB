@@ -108,7 +108,7 @@ imageRGB loadImage(int *etape)
 		else
 			printf("Choix invalide!\n");
 	}
-	
+
 	return image;
 }
 
@@ -117,6 +117,7 @@ imageRGB appiquerFiltre(imageRGB image, int *etape)
 	int input;
 	imageRGB newImage;
 	int flag = 1;
+	int intensite;
 
 	system("cls");
 	printf("Etape 2: Appliquer un filtre:\n");
@@ -124,27 +125,33 @@ imageRGB appiquerFiltre(imageRGB image, int *etape)
 	while (1)
 	{
 		printf("------------------------------------------\n");
-		printf("1 - Image grise.\n");
-		printf("2 - Detection de contours.\n");
-		printf("3 - Inverser image.\n");
-		printf("4 - Continuer sans appliquer un filtre.\n");
-		printf("5 - Retourner a l'etape precedente.\n");
+		printf("1 - Flou.\n");
+		printf("2 - Image grise.\n");
+		printf("3 - Detection de contours.\n");
+		printf("4 - Inverser image.\n");
+		printf("5 - Continuer sans appliquer un filtre.\n");
+		printf("6 - Retourner a l'etape precedente.\n");
 		printf("------------------------------------------\n");
 		scanf("%d", &input);
 		switch (input)
 		{
 			case 1:
-				newImage = creerImageGris(image);
+				printf("Veuillez entrer l'intensite du flou (0 -> 10): ");
+				scanf("%d", &intensite);
+				newImage = flou(image, intensite);
 				break;
 			case 2:
-				newImage = detectContours(image);
+				newImage = creerImageGris(image);
 				break;
 			case 3:
-				newImage = inverserImage(image);
+				newImage = detectContours(image);
 				break;
 			case 4:
-				return image;
+				newImage = inverserImage(image);
+				break;
 			case 5:
+				return image;
+			case 6:
 				*etape = 1;
 				return image;
 			default:
@@ -152,7 +159,7 @@ imageRGB appiquerFiltre(imageRGB image, int *etape)
 				flag = 0;
 		}
 		if (flag)
-			break;
+			return newImage;
 		else
 			printf("Choix invalide!\n");
 	}
@@ -168,7 +175,7 @@ void enregistrerImage(imageRGB image, int *etape)
 	printf("Etape 3: Exporter image:\n");
 	printf("Veuillez entrer le nom du fichier a exporter (ou 0 pour retourner): output/");
 	scanf("%s", &filename);
-	
+
 	if (!strcmp("0", filename))
 	{
 		*etape = 2;
@@ -177,44 +184,45 @@ void enregistrerImage(imageRGB image, int *etape)
 	creerFichier(image, filename);
 	printf("Votre fichier a ete creer avec succee.\n");
 	printf("Entrer 1 pour traiter une nouvelle image, 0 pour quitter: \n");
-	scanf("%d", input);
+	scanf("%d", &input);
 	if (!input)
 		*etape = 0;
 	else
 		*etape = 1;
 }
 
-int main()
-{
-	imageRGB image;
-	int etape = 1;
-
-	system("cls");
-	printf("Bienvenue dans le monde de traitement d'image!");
-	Sleep(3000);
-
-	while (etape)
-	{
-		switch (etape)
-		{
-			case 1:
-				image = loadImage(&etape);
-				break;
-			case 2:
-				image = appiquerFiltre(image, &etape);
-				break;
-			case 3:
-				enregistrerImage(image, &etape);
-				break;
-		}
-	}	
-	return 0;
-}
-
 // int main()
 // {
-// 	FILE *fptr = fopen("images/image.ppm", "rb");
-// 	imageRGB image = lireImageFichier(fptr);
-// 	creerFichier(image, "test");
+// 	imageRGB image;
+// 	int etape = 1;
+
+// 	system("cls");
+// 	printf("Bienvenue dans le monde de traitement d'image!");
+// 	Sleep(3000);
+
+// 	while (etape)
+// 	{
+// 		switch (etape)
+// 		{
+// 			case 1:
+// 				image = loadImage(&etape);
+// 				break;
+// 			case 2:
+// 				image = appiquerFiltre(image, &etape);
+// 				break;
+// 			case 3:
+// 				enregistrerImage(image, &etape);
+// 				break;
+// 		}
+// 	}
 // 	return 0;
 // }
+
+int main(void)
+{
+	FILE *fptr = fopen("images/image.ppm", "rb");
+	imageRGB image = lireImageFichier(fptr);
+	creerFichier(flou(image, 5), "flouTest");
+
+	return 0;
+}
